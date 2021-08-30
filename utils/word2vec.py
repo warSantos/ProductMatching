@@ -16,6 +16,7 @@ class Word2VecModel:
         if params is not None:
 
             keys = list(params.keys())
+            keys.remove("sentences")
             keys.sort()
             sufix = "_".join([key + "-" + str(params[key]) for key in keys])
             model_path = "models/w2v_" + sufix + ".model"
@@ -24,10 +25,12 @@ class Word2VecModel:
                 self.model = Word2Vec.load(model_path)
             else:
                 self.model = Word2Vec(
-                    sentences=tokens,
-                    vector_size=params["vector_size"],
-                    sg=params["sg"],
-                    epochs=params["epochs"],
+                    sentences = params["sentences"],
+                    vector_size = params["vector_size"],
+                    sg = params["sg"],
+                    window = params["window"],
+                    epochs = params["epochs"],
+                    workers = params["workers"]
                 )
                 self.model.save(model_path)
         else:

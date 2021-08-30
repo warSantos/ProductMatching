@@ -39,6 +39,26 @@ class Clfs():
         
         return scores
 
+    def fast_avaliation(self, classifiers, X, Y, random=True, n_folds=5, n_jobs=3):
+        
+        r = np.random
+        if random:
+            seed = r.randint(0, 2147483647 * 2)
+        else:
+            seed = 42
+        
+        estimators = {}
+        for alg in classifiers:
+            # Clonando o classificador.
+            clf = clone(classifiers[alg])
+            scores = cross_val_score(clf, X, Y, cv=n_folds, n_jobs=n_jobs)
+            estimators[alg] = {}
+            estimators[alg]["scores"] = scores
+            estimators[alg]["mean_f1"] = np.mean(scores)
+            estimators[alg]["std_f1"] = np.std(scores)
+        return estimators
+        
+
     def avaliation(self, classifiers, features, target, random=True):
 
         r = np.random
@@ -50,32 +70,28 @@ class Clfs():
         results = {}
         n_folds = 5
         kf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
-        # Para cada representação vetorial.
-        for rep_name in features:
-            estimators = {}
-            feats = features[rep_name]
-            for alg in classifiers:    
-                # Validação cruzada.
-                for train_index, test_index in kf.split(feats):
-                    X_train, X_test = feats[train_index], feats[test_index]
-                    y_train, y_test = target[train_index], target[test_index]
-                    # Clonando o classificador.
-                    clf = clone(classifiers[alg])
-                    # Predizendo 
-                    clf.fit(X_train, y_train)
-                    y_pred = clf.predict(X_test)
-                    if alg not in estimators:
-                        estimators[alg] = {}
-                        estimators[alg]["accs"] = []
-                        estimators[alg]["f1s"] = []
-                    estimators[alg]["accs"].append(accuracy_score(y_test, y_pred))
-                    estimators[alg]["f1s"].append(f1_score(y_test, y_pred, average="macro"))
-            
-                estimators[alg]["accs"] = np.array(estimators[alg]["accs"])
-                estimators[alg]["f1s"] = np.array(estimators[alg]["f1s"])
-                estimators[alg]["mean_accs"] = np.mean(estimators[alg]["accs"])
-                estimators[alg]["mean_f1"] = np.mean(estimators[alg]["f1s"])
-                estimators[alg]["std_accs"] = np.std(estimators[alg]["accs"])
-                estimators[alg]["std_f1"] = np.std(estimators[alg]["f1s"])
-            results[rep_name] = estimators
-        return results
+        estimators = {}
+        for alg in classifiers:    
+            # Validação cruzada.
+            for train_index, test_index in kf.split(features):
+                X_train, X_test = features[train_index], features[test_index]
+                y_train, y_test = target[train_index], target[test_index]
+                # Clonando o classificador.
+                clf = clone(classifiers[alg])
+                # Predizendo 
+                clf.fit(X_train, y_train)
+                y_pred = clf.predict(X_test)
+                if alg not in estimators:
+                    estimators[alg] = {}
+                    estimators[alg]["accs"] = []
+                    estimators[alg]["f1s"] = []
+                estimators[alg]["accs"].append(accuracy_score(y_test, y_pred))
+                estimators[alg]["f1s"].append(f1_score(y_test, y_pred, average="macro"))
+        
+            estimators[alg]["accs"] = np.array(estimators[alg]["accs"])
+            estimators[alg]["f1s"] = np.array(estimators[alg]["f1s"])
+            estimators[alg]["mean_accs"] = np.mean(estimators[alg]["accs"])
+            estimators[alg]["mean_f1"] = np.mean(estimators[alg]["f1s"])
+            estimators[alg]["std_accs"] = np.std(estimators[alg]["accs"])
+            estimators[alg]["std_f1"] = np.std(estimators[alg]["f1s"])
+        return estimators
