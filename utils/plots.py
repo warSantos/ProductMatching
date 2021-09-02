@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_acc_classes(results, limit):
+def plot_acc_classes(results, limit, timestamp):
 
     total_class = len(results.keys())
     values_plot = {}
@@ -23,14 +23,15 @@ def plot_acc_classes(results, limit):
                     values_plot[n_class][rep][clf].append(mean_f1)
 
     index = 0
-    fig, ax = plt.subplots(figsize=(20,18))
+    fig, ax = plt.subplots(figsize=(22,36))
     for n_class in values_plot:
         for rep in values_plot[n_class]:
-            ax = plt.subplot(4, 4, index+1)
+            ax = plt.subplot(8, 4, index+1)
             for clf in values_plot[n_class][rep]:
                 y = values_plot[n_class][rep][clf]
                 x = list(range(3, limit))
-                label = rep[:3]+' '+clf[:3]
+                #label = rep[:3]+' '+clf[:3]
+                label = rep+' '+clf
                 plt.plot(x, y, label=label)
             plt.grid()
             plt.ylim((0,1))
@@ -43,13 +44,13 @@ def plot_acc_classes(results, limit):
             index += 1
 
     fig.tight_layout()
-    plt.savefig('graphs/f1_classes.pdf')
+    plt.savefig(f'graphs/f1_classes_{timestamp}.pdf')
 
-def plot_dists(dists, df):
+def plot_dists(dists, df, step=5):
 
     cat_ids = list(dists.keys())
     total = len(cat_ids)
-    fig, ax = plt.subplots(figsize=(18,14))
+    fig, ax = plt.subplots(figsize=(18,16))
     for i in range(total):
         ax = plt.subplot(3, 4, i+1)
         x = list(range(dists[cat_ids[i]].shape[0]))
@@ -59,7 +60,7 @@ def plot_dists(dists, df):
         plt.plot(x, y, label=label_cat)
         plt.grid()
         plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
+        plt.yticks(np.arange(min(y), max(y)+1, step), fontsize=16)
         plt.xlabel("Comparasons", fontsize=16)
         plt.ylabel("Distances", fontsize=16)
         plt.tight_layout()
