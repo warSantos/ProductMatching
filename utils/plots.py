@@ -22,24 +22,26 @@ def plot_acc_classes(results, limit):
                     mean_f1 = results[n_class][it][rep][clf]["mean_f1"]
                     values_plot[n_class][rep][clf].append(mean_f1)
 
-    fig, axes = plt.subplots(4,2, figsize=(14,18))
-    for n_class, index in zip(values_plot, range(total_class)):
-        col = index % 2
-        line = index // 2
+    index = 0
+    fig, ax = plt.subplots(figsize=(20,18))
+    for n_class in values_plot:
         for rep in values_plot[n_class]:
+            ax = plt.subplot(4, 4, index+1)
             for clf in values_plot[n_class][rep]:
                 y = values_plot[n_class][rep][clf]
                 x = list(range(3, limit))
-                label = rep+' '+clf
-                axes[line, col].plot(x, y, label=label)
-        axes[line, col].legend()
-        axes[line, col].set_ylim((0,1))
-        axes[line, col].set_xlabel("Number of Classes", fontsize=16)
-        axes[line, col].set_ylabel("F1 (%)", fontsize=16)
-        axes[line, col].set_title("Class with "+str(n_class), fontsize=18)
-        axes[line, col].tick_params(axis='x', labelsize=16)
-        axes[line, col].tick_params(axis='y', labelsize=16)
-        axes[line, col].grid()
+                label = rep[:3]+' '+clf[:3]
+                plt.plot(x, y, label=label)
+            plt.grid()
+            plt.ylim((0,1))
+            plt.xlabel("Number of Classes", fontsize=16)
+            plt.ylabel("F1 (%)", fontsize=16)
+            plt.title("Class with "+str(n_class), fontsize=18)
+            plt.tick_params(axis='x', labelsize=16)
+            plt.tick_params(axis='y', labelsize=16)
+            plt.legend()
+            index += 1
+
     fig.tight_layout()
     plt.savefig('graphs/f1_classes.pdf')
 
@@ -47,10 +49,8 @@ def plot_dists(dists, df):
 
     cat_ids = list(dists.keys())
     total = len(cat_ids)
-    fig, ax = plt.subplots(figsize=(14,10))
+    fig, ax = plt.subplots(figsize=(18,14))
     for i in range(total):
-        col = i % 2
-        line = i // 2
         ax = plt.subplot(3, 4, i+1)
         x = list(range(dists[cat_ids[i]].shape[0]))
         y = np.copy(dists[cat_ids[i]])

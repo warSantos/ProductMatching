@@ -53,7 +53,7 @@ class Clfs():
             clf = clone(classifiers[alg])
             scores = cross_val_score(clf, X, Y, cv=n_folds, n_jobs=n_jobs)
             estimators[alg] = {}
-            estimators[alg]["scores"] = scores
+            estimators[alg]["scores"] = scores.tolist()
             estimators[alg]["mean_f1"] = np.mean(scores)
             estimators[alg]["std_f1"] = np.std(scores)
         return estimators
